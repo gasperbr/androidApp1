@@ -1,14 +1,18 @@
 package si.uni_lj.fri.pbd.miniapp1.ui.contacts;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 import androidx.cursoradapter.widget.SimpleCursorAdapter;
 import androidx.fragment.app.Fragment;
 import androidx.loader.app.LoaderManager;
 import androidx.loader.content.CursorLoader;
 import androidx.loader.content.Loader;
+import androidx.recyclerview.widget.RecyclerView;
 
+import android.Manifest;
 import android.annotation.SuppressLint;
+import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Build;
@@ -83,13 +87,28 @@ public class ContactsFragment extends Fragment implements
     }
 
     // A UI Fragment must inflate its View
-    @SuppressLint("ResourceType")
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
+        // Inflate the fragment layout
+        return inflater.inflate(R.layout.contacts_list, container, false);
+    }
 
+    @SuppressLint("ResourceType")
+    public void onActivityCreated(Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+
+        if (ContextCompat.checkSelfPermission(getActivity(), Manifest.permission.READ_CONTACTS)
+                == PackageManager.PERMISSION_GRANTED) {
+            initContactList();
+        } else {
+            // show button to set permission
+        }
+    }
+
+    public void initContactList() {
         // Gets the ListView from the View list of the parent activity
-        contactsList = (ListView) getActivity().findViewById(R.layout.contacts_list);
+        contactsList = (ListView) getActivity().findViewById(R.id.list);
         // Gets a CursorAdapter
         cursorAdapter = new SimpleCursorAdapter(
                 getActivity(),
@@ -99,13 +118,6 @@ public class ContactsFragment extends Fragment implements
                 0);
         // Sets the adapter for the ListView
         contactsList.setAdapter(cursorAdapter);
-
-        // Inflate the fragment layout
-        return inflater.inflate(R.layout.contacts_list, container, false);
-    }
-
-    public void onActivityCreated(Bundle savedInstanceState) {
-        super.onActivityCreated(savedInstanceState);
         // Set the item click listener to be the current fragment.
         contactsList.setOnItemClickListener(this);
     }
@@ -114,7 +126,7 @@ public class ContactsFragment extends Fragment implements
     public void onItemClick(
             AdapterView<?> parent, View item, int position, long rowID) {
         // Get the Cursor
-        // Cursor cursor = parent.getAdapter().getCursor();
+        // Cursor cursor = (()parent.getAdapter()).getCursor();
         // Move to the selected contact
         // cursor.moveToPosition(position);
         // Get the _ID value
