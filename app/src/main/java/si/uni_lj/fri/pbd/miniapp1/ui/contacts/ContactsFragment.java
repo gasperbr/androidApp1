@@ -18,10 +18,12 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.provider.ContactsContract;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
+import android.widget.CursorAdapter;
 import android.widget.ListView;
 
 import si.uni_lj.fri.pbd.miniapp1.R;
@@ -34,12 +36,14 @@ public class ContactsFragment extends Fragment implements
      * Defines an array that contains column names to move from
      * the Cursor to the ListView.
      */
+
+    public ContactsFragment() {}
+
     @SuppressLint("InlinedApi")
     private final static String[] FROM_COLUMNS = {
-            Build.VERSION.SDK_INT
-                    >= Build.VERSION_CODES.HONEYCOMB ?
-                    ContactsContract.Contacts.DISPLAY_NAME_PRIMARY :
-                    ContactsContract.Contacts.DISPLAY_NAME
+        Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB ?
+            ContactsContract.Contacts.DISPLAY_NAME_PRIMARY :
+            ContactsContract.Contacts.DISPLAY_NAME
     };
     /*
      * Defines an array that contains resource ids for the layout views
@@ -66,8 +70,7 @@ public class ContactsFragment extends Fragment implements
     private static final String[] PROJECTION = {
         ContactsContract.Contacts._ID,
         ContactsContract.Contacts.LOOKUP_KEY,
-        Build.VERSION.SDK_INT
-            >= Build.VERSION_CODES.HONEYCOMB ?
+        Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB ?
             ContactsContract.Contacts.DISPLAY_NAME_PRIMARY :
             ContactsContract.Contacts.DISPLAY_NAME
     };
@@ -109,6 +112,7 @@ public class ContactsFragment extends Fragment implements
     public void initContactList() {
         // Gets the ListView from the View list of the parent activity
         contactsList = (ListView) getActivity().findViewById(R.id.list);
+        Log.d("contacts list -----------------------------", contactsList.toString());
         // Gets a CursorAdapter
         cursorAdapter = new SimpleCursorAdapter(
                 getActivity(),
@@ -126,15 +130,18 @@ public class ContactsFragment extends Fragment implements
     public void onItemClick(
             AdapterView<?> parent, View item, int position, long rowID) {
         // Get the Cursor
-        // Cursor cursor = (()parent.getAdapter()).getCursor();
+        Cursor cursor = ((CursorAdapter)parent.getAdapter()).getCursor();
+
+        Log.d("cusor success --------------------", cursor.toString());
+
         // Move to the selected contact
-        // cursor.moveToPosition(position);
+        cursor.moveToPosition(position);
         // Get the _ID value
-        // contactId = cursor.getLong(CONTACT_ID_INDEX);
+        contactId = cursor.getLong(CONTACT_ID_INDEX);
         // Get the selected LOOKUP KEY
-        // contactKey = cursor.getString(CONTACT_KEY_INDEX);
+        contactKey = cursor.getString(CONTACT_KEY_INDEX);
         // Create the contact's content Uri
-        // contactUri = ContactsContract.Contacts.getLookupUri(contactId, contactKey);
+        contactUri = ContactsContract.Contacts.getLookupUri(contactId, contactKey);
         /*
          * You can use contactUri as the content URI for retrieving
          * the details for a contact.

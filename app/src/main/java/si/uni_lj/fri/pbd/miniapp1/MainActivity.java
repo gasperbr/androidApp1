@@ -1,10 +1,21 @@
 package si.uni_lj.fri.pbd.miniapp1;
 
 import android.Manifest;
+import android.app.Activity;
+import android.content.Context;
+import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.Bundle;
+import android.provider.MediaStore;
+import android.util.AttributeSet;
+import android.util.Base64;
+import android.util.Log;
 import android.view.View;
 import android.view.Menu;
+import android.widget.ImageView;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
@@ -20,10 +31,13 @@ import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
+import java.io.ByteArrayOutputStream;
+
 public class MainActivity extends AppCompatActivity {
 
     private static final int MY_PERMISSIONS_REQUEST_READ_CONTACTS = 1;
     private AppBarConfiguration mAppBarConfiguration;
+    static final int REQUEST_IMAGE_CAPTURE = 1;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -80,6 +94,27 @@ public class MainActivity extends AppCompatActivity {
         NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment);
         NavigationUI.setupActionBarWithNavController(this, navController, mAppBarConfiguration);
         NavigationUI.setupWithNavController(navigationView, navController);
+
+        new android.os.Handler().postDelayed(
+            new Runnable() {
+                public void run() {
+                    Log.i("tag", "This'll run 300 milliseconds later");
+                    trySettingUserPicture();
+                }
+        }, 300);
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+    }
+
+    public void trySettingUserPicture() {
+        SharedPreferences sharedPref = this.getPreferences(Context.MODE_PRIVATE);
+        String image = sharedPref.getString(getString(R.string.saved_user_image), null);
+        if (image != null) {
+            setImageFromString(image);
+        }
     }
 
     @Override
@@ -95,4 +130,48 @@ public class MainActivity extends AppCompatActivity {
         return NavigationUI.navigateUp(navController, mAppBarConfiguration)
                 || super.onSupportNavigateUp();
     }
+
+    public void takeAPhoto(View view) {
+        Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+        if (takePictureIntent.resolveActivity(getPackageManager()) != null) {
+            startActivityForResult(takePictureIntent, REQUEST_IMAGE_CAPTURE);
+        }
+
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+
+        super.onActivityResult(requestCode, resultCode, data);
+
+        if (requestCode == REQUEST_IMAGE_CAPTURE && resultCode == RESULT_OK) {
+            Bundle extras = data.getExtras();
+            Bitmap imageBitmap = (Bitmap) extras.get("data");
+            ((ImageView)findViewById(R.id.imageView)).setImageBitmap(imageBitmap);
+
+            //save to shared preferences
+            String image = encodeBitmap(imageBitmap);
+
+            SharedPreferences sharedPref = this.getPreferences(Context.MODE_PRIVATE);
+            SharedPreferences.Editor editor = sharedPref.edit();
+            editor.putString(getString(R.string.saved_user_image), image);
+            editor.commit();
+        }
+    }
+
+    private String encodeBitmap(Bitmap bm) {
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        bm.compress(Bitmap.CompressFormat.PNG, 100, baos);
+        byte[] b = baos.toByteArray();
+        return Base64.encodeToString(b, Base64.DEFAULT);
+    }
+
+    private void setImageFromString(String encoded) {
+        byte[] imageAsBytes = Base64.decode(encoded.getBytes(), Base64.DEFAULT);
+        ImageView imageView = findViewById(R.id.imageView);
+        if (imageView != null) {
+            imageView.setImageBitmap(BitmapFactory.decodeByteArray(imageAsBytes, 0, imageAsBytes.length));
+        }
+    }
+
 }

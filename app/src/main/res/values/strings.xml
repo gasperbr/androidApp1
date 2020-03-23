@@ -17,4 +17,6 @@
     <string name="menu_slideshow">Slideshow</string>
 
     <string name="home_second">Home Second</string>
+
+    <string name="saved_user_image">userImageId</string>
 </resources>
