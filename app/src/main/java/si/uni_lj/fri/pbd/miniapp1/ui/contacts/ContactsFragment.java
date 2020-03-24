@@ -87,14 +87,16 @@ public class ContactsFragment extends Fragment implements
     }
 
     // A UI Fragment must inflate its View
+    @SuppressLint("ResourceType")
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the fragment layout
         View root =  inflater.inflate(R.layout.contacts_list_view, container, false);
-        // contactsCall();
+        contactsList = root.findViewById(R.id.list);
         return root;
     }
+
 
     @SuppressLint("ResourceType")
     public void onActivityCreated(Bundle savedInstanceState) {
@@ -115,7 +117,7 @@ public class ContactsFragment extends Fragment implements
     @SuppressLint("ResourceType")
     public void initContactList() {
         // Gets the ListView from the View list of the parent activity
-        contactsList = getActivity().findViewById(R.layout.contacts_list_view);
+        // contactsList = getView().findViewById(R.layout.contacts_list_view);
         if (contactsList != null) {
 
             Log.d("contacts list -----------------------------", contactsList.toString());
