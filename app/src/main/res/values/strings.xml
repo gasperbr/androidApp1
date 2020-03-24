@@ -13,6 +13,11 @@
 
     <string name="menu_contacts">Contacts</string>
 
+    <string name="menu_message">Message</string>
+    <string name="message_share">Share</string>
+    <string name="message_email">Send group email</string>
+    <string name="message_mms">Send group MMS</string>
+
     <string name="menu_gallery">Gallery</string>
     <string name="menu_slideshow">Slideshow</string>
 

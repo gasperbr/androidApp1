@@ -1,14 +1,12 @@
 package si.uni_lj.fri.pbd.miniapp1.ui.contacts;
 
 import androidx.annotation.NonNull;
-import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.cursoradapter.widget.SimpleCursorAdapter;
 import androidx.fragment.app.Fragment;
 import androidx.loader.app.LoaderManager;
 import androidx.loader.content.CursorLoader;
 import androidx.loader.content.Loader;
-import androidx.recyclerview.widget.RecyclerView;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
@@ -28,17 +26,18 @@ import android.widget.ListView;
 
 import si.uni_lj.fri.pbd.miniapp1.R;
 
+
 public class ContactsFragment extends Fragment implements
         LoaderManager.LoaderCallbacks<Cursor>,
         AdapterView.OnItemClickListener {
+
+
+    public ContactsFragment() {}
 
     /*
      * Defines an array that contains column names to move from
      * the Cursor to the ListView.
      */
-
-    public ContactsFragment() {}
-
     @SuppressLint("InlinedApi")
     private final static String[] FROM_COLUMNS = {
         Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB ?
@@ -50,9 +49,7 @@ public class ContactsFragment extends Fragment implements
      * that get the Cursor column contents. The id is pre-defined in
      * the Android framework, so it is prefaced with "android.R.id"
      */
-    private final static int[] TO_IDS = {
-            android.R.id.text1
-    };
+    private final static int[] TO_IDS = {android.R.id.text1};
     // Define global mutable variables
     // Define a ListView object
     ListView contactsList;
@@ -94,13 +91,19 @@ public class ContactsFragment extends Fragment implements
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the fragment layout
-        return inflater.inflate(R.layout.contacts_list, container, false);
+        View root =  inflater.inflate(R.layout.contacts_list_view, container, false);
+        // contactsCall();
+        return root;
     }
 
     @SuppressLint("ResourceType")
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
 
+        contactsCall();
+    }
+
+    private void contactsCall() {
         if (ContextCompat.checkSelfPermission(getActivity(), Manifest.permission.READ_CONTACTS)
                 == PackageManager.PERMISSION_GRANTED) {
             initContactList();
@@ -109,21 +112,28 @@ public class ContactsFragment extends Fragment implements
         }
     }
 
+    @SuppressLint("ResourceType")
     public void initContactList() {
         // Gets the ListView from the View list of the parent activity
-        contactsList = (ListView) getActivity().findViewById(R.id.list);
-        Log.d("contacts list -----------------------------", contactsList.toString());
-        // Gets a CursorAdapter
-        cursorAdapter = new SimpleCursorAdapter(
-                getActivity(),
-                R.layout.contacts_list_item,
-                null,
-                FROM_COLUMNS, TO_IDS,
-                0);
-        // Sets the adapter for the ListView
-        contactsList.setAdapter(cursorAdapter);
-        // Set the item click listener to be the current fragment.
-        contactsList.setOnItemClickListener(this);
+        contactsList = getActivity().findViewById(R.layout.contacts_list_view);
+        if (contactsList != null) {
+
+            Log.d("contacts list -----------------------------", contactsList.toString());
+            // Gets a CursorAdapter
+            cursorAdapter = new SimpleCursorAdapter(
+                    getActivity(),
+                    R.layout.contacts_list_item,
+                    null,
+                    FROM_COLUMNS, TO_IDS,
+                    0);
+            // Sets the adapter for the ListView
+            contactsList.setAdapter(cursorAdapter);
+            // Set the item click listener to be the current fragment.
+            contactsList.setOnItemClickListener(this);
+
+        } else {
+            Log.d("its null", "contact list");
+        }
     }
 
     @Override
@@ -172,13 +182,17 @@ public class ContactsFragment extends Fragment implements
     @Override
     public void onLoadFinished(@NonNull Loader<Cursor> loader, Cursor cursor) {
         // Put the result Cursor in the adapter for the ListView
-        cursorAdapter.swapCursor(cursor);
+        if (contactUri != null) {
+            cursorAdapter.swapCursor(cursor);
+        }
     }
 
     @Override
     public void onLoaderReset(@NonNull Loader<Cursor> loader) {
         // Delete the reference to the existing Cursor
-        cursorAdapter.swapCursor(null);
+        if (cursorAdapter != null) {
+            cursorAdapter.swapCursor(null);
+        }
     }
 
 }

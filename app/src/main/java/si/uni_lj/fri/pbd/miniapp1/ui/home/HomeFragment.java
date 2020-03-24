@@ -1,15 +1,9 @@
 package si.uni_lj.fri.pbd.miniapp1.ui.home;
 
-import android.content.Context;
-import android.content.SharedPreferences;
-import android.graphics.BitmapFactory;
 import android.os.Bundle;
-import android.util.Base64;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -36,24 +30,6 @@ public class HomeFragment extends Fragment {
             }
         });
 
-        // setPictureFromStorage();
-
         return root;
     }
-
-    /* public void setPictureFromStorage() {
-        SharedPreferences sharedPref = getActivity().getPreferences(Context.MODE_PRIVATE);
-        String image = sharedPref.getString(getString(R.string.saved_user_image), null);
-        if (image != null) {
-            setImageFromString(image);
-        }
-    }
-
-    private void setImageFromString(String encoded) {
-        byte[] imageAsBytes = Base64.decode(encoded.getBytes(), Base64.DEFAULT);
-        ImageView imageView = getActivity().findViewById(R.id.imageView);
-        if (imageView != null) {
-            imageView.setImageBitmap(BitmapFactory.decodeByteArray(imageAsBytes, 0, imageAsBytes.length));
-        }
-    } */
 }

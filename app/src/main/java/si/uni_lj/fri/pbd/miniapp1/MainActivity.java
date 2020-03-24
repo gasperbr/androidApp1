@@ -2,13 +2,16 @@ package si.uni_lj.fri.pbd.miniapp1;
 
 import android.Manifest;
 import android.app.Activity;
+import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
+import android.provider.ContactsContract;
 import android.provider.MediaStore;
 import android.util.AttributeSet;
 import android.util.Base64;
@@ -88,20 +91,29 @@ public class MainActivity extends AppCompatActivity {
         // Passing each menu ID as a set of Ids because each
         // menu should be considered as top level destinations.
         mAppBarConfiguration = new AppBarConfiguration.Builder(
-                R.id.nav_home, R.id.nav_gallery, R.id.nav_slideshow)
+                R.id.nav_home, R.id.nav_gallery, R.id.nav_slideshow, R.id.nav_contacts, R.id.nav_message)
                 .setDrawerLayout(drawer)
                 .build();
         NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment);
         NavigationUI.setupActionBarWithNavController(this, navController, mAppBarConfiguration);
         NavigationUI.setupWithNavController(navigationView, navController);
 
-        new android.os.Handler().postDelayed(
-            new Runnable() {
-                public void run() {
-                    Log.i("tag", "This'll run 300 milliseconds later");
-                    trySettingUserPicture();
-                }
-        }, 300);
+        getViewAndSetPicture(navigationView);
+
+        // new android.os.Handler().postDelayed(
+        //     new Runnable() {
+        //         public void run() {
+        //             // Log.i("tag", "This'll run 300 milliseconds later");
+        //             //trySettingUserPicture();
+        //         }
+        // }, 300);
+        // getContactList();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        // trySettingUserPicture();
     }
 
     @Override
@@ -109,11 +121,21 @@ public class MainActivity extends AppCompatActivity {
         super.onStart();
     }
 
-    public void trySettingUserPicture() {
+    private void getViewAndSetPicture(NavigationView navigationView) {
+        // will set user picture
+        ImageView imageView = navigationView.getHeaderView(0).findViewById(R.id.imageView);
+        if (imageView != null) {
+            setPicture(imageView);
+        }
+    }
+
+    private void setPicture(ImageView iv) {
         SharedPreferences sharedPref = this.getPreferences(Context.MODE_PRIVATE);
         String image = sharedPref.getString(getString(R.string.saved_user_image), null);
         if (image != null) {
-            setImageFromString(image);
+            // setImageFromString(image, iv);
+            byte[] imageAsBytes = Base64.decode(image.getBytes(), Base64.DEFAULT);
+            iv.setImageBitmap(BitmapFactory.decodeByteArray(imageAsBytes, 0, imageAsBytes.length));
         }
     }
 
@@ -166,11 +188,46 @@ public class MainActivity extends AppCompatActivity {
         return Base64.encodeToString(b, Base64.DEFAULT);
     }
 
-    private void setImageFromString(String encoded) {
-        byte[] imageAsBytes = Base64.decode(encoded.getBytes(), Base64.DEFAULT);
-        ImageView imageView = findViewById(R.id.imageView);
-        if (imageView != null) {
-            imageView.setImageBitmap(BitmapFactory.decodeByteArray(imageAsBytes, 0, imageAsBytes.length));
+    // private void setImageFromString(String encoded, ImageView iv) {
+    //     byte[] imageAsBytes = Base64.decode(encoded.getBytes(), Base64.DEFAULT);
+    //     iv.setImageBitmap(BitmapFactory.decodeByteArray(imageAsBytes, 0, imageAsBytes.length));
+        // ImageView imageView = findViewById(R.id.imageView);
+        // if (imageView != null) {
+        //     imageView.setImageBitmap(BitmapFactory.decodeByteArray(imageAsBytes, 0, imageAsBytes.length));
+        // }
+    // }
+
+    private void getContactList() {
+        ContentResolver cr = getContentResolver();
+        Cursor cur = cr.query(ContactsContract.Contacts.CONTENT_URI,
+                null, null, null, null);
+
+        if ((cur != null ? cur.getCount() : 0) > 0) {
+            while (cur != null && cur.moveToNext()) {
+                String id = cur.getString(
+                        cur.getColumnIndex(ContactsContract.Contacts._ID));
+                String name = cur.getString(cur.getColumnIndex(
+                        ContactsContract.Contacts.DISPLAY_NAME));
+
+                if (cur.getInt(cur.getColumnIndex(
+                        ContactsContract.Contacts.HAS_PHONE_NUMBER)) > 0) {
+                    Cursor pCur = cr.query(
+                            ContactsContract.CommonDataKinds.Phone.CONTENT_URI,
+                            null,
+                            ContactsContract.CommonDataKinds.Phone.CONTACT_ID + " = ?",
+                            new String[]{id}, null);
+                    while (pCur.moveToNext()) {
+                        String phoneNo = pCur.getString(pCur.getColumnIndex(
+                                ContactsContract.CommonDataKinds.Phone.NUMBER));
+                        Log.i("tag", "Name: " + name);
+                        Log.i("tag", "Phone Number: " + phoneNo);
+                    }
+                    pCur.close();
+                }
+            }
+        }
+        if(cur!=null){
+            cur.close();
         }
     }
 
