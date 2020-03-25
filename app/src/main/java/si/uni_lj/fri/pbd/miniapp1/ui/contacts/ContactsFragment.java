@@ -1,32 +1,116 @@
 package si.uni_lj.fri.pbd.miniapp1.ui.contacts;
 
-import androidx.annotation.NonNull;
-import androidx.core.content.ContextCompat;
-import androidx.cursoradapter.widget.SimpleCursorAdapter;
-import androidx.fragment.app.Fragment;
-import androidx.loader.app.LoaderManager;
-import androidx.loader.content.CursorLoader;
-import androidx.loader.content.Loader;
-
-import android.Manifest;
-import android.annotation.SuppressLint;
-import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
 import android.provider.ContactsContract;
 import android.util.Log;
+import android.util.LongSparseArray;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
-import android.widget.CursorAdapter;
+import android.widget.ArrayAdapter;
 import android.widget.ListView;
+import android.widget.Toast;
 
+import androidx.fragment.app.Fragment;
+
+import java.lang.reflect.Array;
+import java.util.LinkedList;
+import java.util.List;
+
+import si.uni_lj.fri.pbd.miniapp1.MainActivity;
 import si.uni_lj.fri.pbd.miniapp1.R;
 
+public class ContactsFragment extends Fragment {
 
+    List<Person> contacts;
+    String[] contactsArray;
+    ListView listView;
+
+    @Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+                             Bundle savedInstanceState) {
+        // Inflate the fragment layout
+        View root = inflater.inflate(R.layout.contacts_list_view, container, false);
+
+        contacts = new LinkedList();
+
+        listView = root.findViewById(R.id.list);
+
+        getContacts();
+
+        return root;
+    }
+
+    private void getContacts() {
+        LongSparseArray<Person> array = new LongSparseArray();
+
+        String[] projection = {
+                ContactsContract.Data.MIMETYPE,
+                ContactsContract.Data.CONTACT_ID,
+                ContactsContract.Contacts.DISPLAY_NAME,
+                ContactsContract.CommonDataKinds.Contactables.DATA,
+                ContactsContract.CommonDataKinds.Contactables.TYPE,
+        };
+        String selection = ContactsContract.Data.MIMETYPE + " in (?, ?)";
+        String[] selectionArgs = {
+                ContactsContract.CommonDataKinds.Email.CONTENT_ITEM_TYPE,
+                ContactsContract.CommonDataKinds.Phone.CONTENT_ITEM_TYPE,
+        };
+        Uri uri = ContactsContract.Data.CONTENT_URI;
+
+        Cursor cursor = getActivity().getContentResolver().query(uri, projection, selection, selectionArgs, null);
+
+        final int _id = cursor.getColumnIndex(ContactsContract.Data.CONTACT_ID);
+        final int _name = cursor.getColumnIndex(ContactsContract.Contacts.DISPLAY_NAME);
+        final int _mime = cursor.getColumnIndex(ContactsContract.Data.MIMETYPE);
+        final int _data = cursor.getColumnIndex(ContactsContract.CommonDataKinds.Contactables.DATA);
+
+        while (cursor.moveToNext()) {
+            long id = cursor.getLong(_id);
+            Person person = array.get(id);
+            if (person == null) {
+                person = new Person();
+                person.setContactId(id);
+                person.setContactName(cursor.getString(_name));
+
+                array.put(id, person);
+                contacts.add(person);
+            }
+            String data = cursor.getString(_data);
+            String mimeType = cursor.getString(_mime);
+            if (mimeType.equals(ContactsContract.CommonDataKinds.Email.CONTENT_ITEM_TYPE)) {
+                if (person.getContactEmailAddress() == null) {
+                    person.setContactEmailAddress(data);
+                }
+            } else {
+                if (person.getContactPhoneNumber() == null) {
+                    person.setContactPhoneNumber(data);
+                }
+            }
+        }
+        cursor.close();
+
+        // contactsArray = contacts.toArray(new Person[contacts.size()]);
+
+        contactsArray = new String[contacts.size()];
+        for (int i = 0; i < contacts.size(); i++) {
+            contactsArray[i] = contacts.get(i).getContactName();
+        }
+
+        for (String p : contactsArray) {
+            Log.d("ARRAY", p);
+        }
+
+        ArrayAdapter<String> itemsAdapter =
+                new ArrayAdapter<String>(getActivity(), R.layout.contacts_list_item, contactsArray);
+        listView.setAdapter(itemsAdapter);
+
+    }
+}
+
+/*
 public class ContactsFragment extends Fragment implements
         LoaderManager.LoaderCallbacks<Cursor>,
         AdapterView.OnItemClickListener {
@@ -34,21 +118,13 @@ public class ContactsFragment extends Fragment implements
 
     public ContactsFragment() {}
 
-    /*
-     * Defines an array that contains column names to move from
-     * the Cursor to the ListView.
-     */
     @SuppressLint("InlinedApi")
     private final static String[] FROM_COLUMNS = {
         Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB ?
             ContactsContract.Contacts.DISPLAY_NAME_PRIMARY :
             ContactsContract.Contacts.DISPLAY_NAME
     };
-    /*
-     * Defines an array that contains resource ids for the layout views
-     * that get the Cursor column contents. The id is pre-defined in
-     * the Android framework, so it is prefaced with "android.R.id"
-     */
+
     private final static int[] TO_IDS = {android.R.id.text1};
     // Define global mutable variables
     // Define a ListView object
@@ -154,19 +230,10 @@ public class ContactsFragment extends Fragment implements
         contactKey = cursor.getString(CONTACT_KEY_INDEX);
         // Create the contact's content Uri
         contactUri = ContactsContract.Contacts.getLookupUri(contactId, contactKey);
-        /*
-         * You can use contactUri as the content URI for retrieving
-         * the details for a contact.
-         */
     }
 
     @Override
     public Loader<Cursor> onCreateLoader(int loaderId, Bundle args) {
-        /*
-         * Appends the search string to the base URI. Always
-         * encode search strings to ensure they're in proper
-         * format.
-         */
         Uri contentUri = Uri.withAppendedPath(
                 ContactsContract.Contacts.CONTENT_FILTER_URI,
                 Uri.encode(null)); // searchString
@@ -198,3 +265,4 @@ public class ContactsFragment extends Fragment implements
     }
 
 }
+*/
