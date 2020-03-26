@@ -138,6 +138,7 @@ public class ContactsFragment extends Fragment {
                 // remember checked people (using PersonWrapper[] stored in MainActivity)
                 // don't do this in onPause because then
                 // MessageFragment getsContacts before they are saved
+                PersonWrapper[] pw = getContactsArrayCheckedFromView();
                 ((MainActivity)getActivity()).setCheckedList(getContactsArrayCheckedFromView());
             }
 
@@ -157,9 +158,9 @@ public class ContactsFragment extends Fragment {
             }
         }
 
-        PersonWrapper[] array = new PersonWrapper[checkedCount--];
+        PersonWrapper[] array = new PersonWrapper[checkedCount];
 
-        for (int i = 0; i < array.length; i++) {
+        for (int i = 0; i < checkedItems.size(); i++) {
 
             if (checkedItems.valueAt(i)) { // if checked, add to our array
 
@@ -170,7 +171,7 @@ public class ContactsFragment extends Fragment {
                 personWrapper.setPerson(person);
                 personWrapper.setPersonIndex(personIndex);
 
-                array[checkedCount--] = personWrapper;
+                array[--checkedCount] = personWrapper;
             }
         }
         return  array;

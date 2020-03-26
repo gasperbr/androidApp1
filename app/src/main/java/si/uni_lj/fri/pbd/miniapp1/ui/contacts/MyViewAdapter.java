@@ -58,10 +58,10 @@ public class MyViewAdapter extends ArrayAdapter<Person> {
         final ViewHolder holder;
         try {
             if (convertView == null) {
-                vi = inflater.inflate(R.layout.contacts_list_item, null);
+                vi = inflater.inflate(android.R.layout.simple_list_item_checked, null);
                 holder = new ViewHolder();
 
-                holder.display_name = (TextView) vi.findViewById(R.id.text);
+                holder.display_name = vi.findViewById(R.id.text);
 
                 vi.setTag(holder);
             } else {

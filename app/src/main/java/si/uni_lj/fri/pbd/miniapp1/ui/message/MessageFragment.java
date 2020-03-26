@@ -3,7 +3,6 @@ package si.uni_lj.fri.pbd.miniapp1.ui.message;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -29,8 +28,6 @@ public class MessageFragment extends Fragment {
                              ViewGroup container, Bundle savedInstanceState) {
         View root = inflater.inflate(R.layout.fragment_message, container, false);
 
-        getChosenContacts();
-
         root.findViewById(R.id.buttonEmail).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) { sendEmail(); }
@@ -41,9 +38,14 @@ public class MessageFragment extends Fragment {
             public void onClick(View v) { sendMMS(); }
         });
 
-        ((TextView)root.findViewById(R.id.textViewEmailWarning)).setText(getText());
-
         return root;
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        getChosenContacts();
+        ((TextView)getView().findViewById(R.id.textViewEmailWarning)).setText(getText());
     }
 
     private String getText() {
