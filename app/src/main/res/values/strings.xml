@@ -10,6 +10,7 @@
     <string name="menu_home">Home</string>
     <string name="menu_home_course">PBD2020</string>
     <string name="menu_home_app">Android mini app 1</string>
+    <string name="menu_home_permissions">Must allow app permissions!</string>
 
     <string name="menu_contacts">Contacts</string>
 

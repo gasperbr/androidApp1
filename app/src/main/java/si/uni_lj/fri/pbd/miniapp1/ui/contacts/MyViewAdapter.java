@@ -16,6 +16,9 @@ import si.uni_lj.fri.pbd.miniapp1.R;
 
 public class MyViewAdapter extends ArrayAdapter<Person> {
 
+    // Basic ArrayAdapter implementation
+    // nothing of substance here
+
     private Activity activity;
     private ArrayList<Person> lPerson;
     private static LayoutInflater inflater = null;

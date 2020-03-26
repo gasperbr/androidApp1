@@ -2,6 +2,8 @@ package si.uni_lj.fri.pbd.miniapp1.ui.contacts;
 
 public class Person {
 
+    // Object for storing Contacts
+
     private long personId;
     private String personName;
     private String personEmailAddress;
