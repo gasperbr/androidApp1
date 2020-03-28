@@ -28,6 +28,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
 import java.io.ByteArrayOutputStream;
+import java.util.ArrayList;
 
 import si.uni_lj.fri.pbd.miniapp1.ui.contacts.PersonWrapper;
 import si.uni_lj.fri.pbd.miniapp1.ui.home.HomeFragment;
@@ -41,13 +42,13 @@ public class MainActivity extends AppCompatActivity {
     boolean hasPermission = false;
 
     // array used to save state of checked contacts
-    private PersonWrapper[] checkedListOfPersons;
+    private ArrayList<PersonWrapper> checkedListOfPersons;
 
-    public void setCheckedList(PersonWrapper[] array) {
+    public void setCheckedList(ArrayList<PersonWrapper> array) {
         checkedListOfPersons = array;
     }
 
-    public PersonWrapper[] getCheckedList() {
+    public ArrayList<PersonWrapper> getCheckedList() {
         return checkedListOfPersons;
     }
 
@@ -57,6 +58,12 @@ public class MainActivity extends AppCompatActivity {
 
         // permissions
         checkPermissions();
+
+        // restore previous state of checked contacts
+        if (savedInstanceState != null && savedInstanceState.containsKey("checkedList")) {
+            ArrayList<PersonWrapper> arrayList = savedInstanceState.getParcelableArrayList("checkedList");
+            setCheckedList(arrayList);
+        }
 
         // Default drawer layout logic
         setContentView(R.layout.activity_main);
@@ -103,6 +110,12 @@ public class MainActivity extends AppCompatActivity {
                 || super.onSupportNavigateUp();
     }
 
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        outState.putParcelableArrayList("checkedList", checkedListOfPersons);
+        super.onSaveInstanceState(outState);
+    }
+
     // called when clicking on the image
     public void takeAPhoto(View view) {
         Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
@@ -129,7 +142,7 @@ public class MainActivity extends AppCompatActivity {
             SharedPreferences sharedPref = this.getPreferences(Context.MODE_PRIVATE);
             SharedPreferences.Editor editor = sharedPref.edit();
             editor.putString(getString(R.string.saved_user_image), image);
-            editor.commit();
+            editor.apply();
         }
     }
 

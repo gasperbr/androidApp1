@@ -11,6 +11,8 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 
+import java.util.ArrayList;
+
 import si.uni_lj.fri.pbd.miniapp1.MainActivity;
 import si.uni_lj.fri.pbd.miniapp1.R;
 import si.uni_lj.fri.pbd.miniapp1.ui.contacts.Person;
@@ -20,7 +22,7 @@ import static androidx.constraintlayout.widget.Constraints.TAG;
 
 public class MessageFragment extends Fragment {
 
-    PersonWrapper[] personWrapper;
+    ArrayList<PersonWrapper> personWrapper;
     String[] numbersArray;
     String[] emailsArray;
 
@@ -80,8 +82,8 @@ public class MessageFragment extends Fragment {
         int numberCount = 0;
         // count emails & numbers to set arrays with proper length
 
-        for (int i = 0; i < personWrapper.length; i++) {
-            Person person = personWrapper[i].getPerson();
+        for (int i = 0; i < personWrapper.size(); i++) {
+            Person person = personWrapper.get(i).getPerson();
             if (person.getContactEmailAddress() != null) {
                 emailCount++;
             }
@@ -93,9 +95,9 @@ public class MessageFragment extends Fragment {
         emailsArray = new String[emailCount--];
         numbersArray = new String[numberCount--];
 
-        for (int i = 0; i < personWrapper.length; i++) {
+        for (int i = 0; i < personWrapper.size(); i++) {
 
-            Person person = personWrapper[i].getPerson();
+            Person person = personWrapper.get(i).getPerson();
             String email = person.getContactEmailAddress();
             String number = person.getContactPhoneNumber();
 

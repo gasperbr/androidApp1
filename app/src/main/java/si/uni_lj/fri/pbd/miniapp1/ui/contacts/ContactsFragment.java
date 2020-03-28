@@ -20,6 +20,7 @@ import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 
 import java.lang.reflect.Array;
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.stream.Stream;
@@ -31,7 +32,7 @@ public class ContactsFragment extends Fragment {
 
     List<Person> contacts;
     String[] contactsArray;
-    PersonWrapper[] contactsArrayChecked;
+    ArrayList<PersonWrapper> contactsArrayChecked;
     ListView listView;
 
     @Override
@@ -138,7 +139,6 @@ public class ContactsFragment extends Fragment {
                 // remember checked people (using PersonWrapper[] stored in MainActivity)
                 // don't do this in onPause because then
                 // MessageFragment getsContacts before they are saved
-                PersonWrapper[] pw = getContactsArrayCheckedFromView();
                 ((MainActivity)getActivity()).setCheckedList(getContactsArrayCheckedFromView());
             }
 
@@ -147,18 +147,18 @@ public class ContactsFragment extends Fragment {
 
     // used when saving checked states
     // return array of Objects, storing the contact and and it's listView index (PersonWrapper object)
-    public PersonWrapper[] getContactsArrayCheckedFromView() {
+    public ArrayList<PersonWrapper> getContactsArrayCheckedFromView() {
 
         SparseBooleanArray checkedItems = listView.getCheckedItemPositions();
 
-        int checkedCount = 0;
-        for (int i = 0; i < checkedItems.size(); i++) {
-            if (checkedItems.valueAt(i)) {
-                checkedCount++;
-            }
-        }
+        // int checkedCount = 0;
+        // for (int i = 0; i < checkedItems.size(); i++) {
+        //     if (checkedItems.valueAt(i)) {
+        //         checkedCount++;
+        //     }
+        // }
 
-        PersonWrapper[] array = new PersonWrapper[checkedCount];
+        ArrayList<PersonWrapper> array = new ArrayList<PersonWrapper>();
 
         for (int i = 0; i < checkedItems.size(); i++) {
 
@@ -171,7 +171,7 @@ public class ContactsFragment extends Fragment {
                 personWrapper.setPerson(person);
                 personWrapper.setPersonIndex(personIndex);
 
-                array[--checkedCount] = personWrapper;
+                array.add(personWrapper);
             }
         }
         return  array;
@@ -185,8 +185,8 @@ public class ContactsFragment extends Fragment {
         contactsArrayChecked = ((MainActivity)getActivity()).getCheckedList();
 
         if (contactsArrayChecked != null) {
-            for(int i = 0; i < contactsArrayChecked.length; i++) {
-                listView.setItemChecked(contactsArrayChecked[i].getPersonIndex(), true);
+            for(int i = 0; i < contactsArrayChecked.size(); i++) {
+                listView.setItemChecked(contactsArrayChecked.get(i).getPersonIndex(), true);
             }
         }
     }
